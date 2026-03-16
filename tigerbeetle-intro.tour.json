@@ -1,0 +1,445 @@
+{
+  "id": "tigerbeetle-intro",
+  "title": "Welcome to TigerBeetle",
+  "description": "A guided tour of TigerBeetle — a high-performance financial transactions database built in Zig. Explore the consensus protocol, storage engine, accounting logic, client libraries, and testing infrastructure.",
+  "version": "1.0.0",
+  "audience": "New Contributors & Engineers",
+  "prerequisites": [
+    "Basic understanding of databases and distributed systems",
+    "Familiarity with systems programming concepts"
+  ],
+  "steps": [
+    {
+      "id": "overview",
+      "title": "The Big Picture",
+      "description": "TigerBeetle is a financial transactions database designed for mission-critical safety and extreme performance. The entire codebase is written in Zig — chosen for static memory allocation, deterministic execution, and fine-grained hardware control. The top-level layout is simple: `src/` holds all source code, `docs/` has documentation, and `build.zig` drives the build system.",
+      "focusDirectory": "",
+      "colorMode": "fileTypes",
+      "estimatedTime": 30,
+      "interactiveActions": [
+        {
+          "type": "hover-directory",
+          "description": "Hover over the src directory to see the core codebase",
+          "target": "src"
+        }
+      ]
+    },
+    {
+      "id": "core-modules",
+      "title": "Core Source Modules",
+      "description": "The `src/` directory contains everything: the database engine, consensus protocol, storage layer, client libraries, CLI, and tests. Key root-level files include `state_machine.zig` (the accounting engine — 207KB), `constants.zig` (runtime configuration), `vopr.zig` (deterministic simulation tester), and `tigerbeetle.zig` (the main entry point). Each major subsystem lives in its own subdirectory.",
+      "focusDirectory": "src",
+      "colorMode": "fileTypes",
+      "estimatedTime": 45,
+      "highlightLayers": [
+        {
+          "id": "entry-points",
+          "name": "Key Entry Points",
+          "color": "#f59e0b",
+          "items": [
+            { "path": "src/tigerbeetle.zig", "type": "file" },
+            { "path": "src/state_machine.zig", "type": "file" },
+            { "path": "src/constants.zig", "type": "file" },
+            { "path": "src/vopr.zig", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click state_machine.zig — the heart of TigerBeetle's accounting logic",
+          "target": "src/state_machine.zig"
+        }
+      ]
+    },
+    {
+      "id": "consensus-protocol",
+      "title": "VSR — Consensus Protocol",
+      "description": "TigerBeetle uses Viewstamped Replication (VSR) for distributed consensus across a 6-replica cluster. The `vsr/` directory implements the full protocol: `replica.zig` (565KB) is the core replica state machine handling replication, quorum consensus, and failover. `journal.zig` manages the write-ahead log, `grid.zig` provides the block storage abstraction (0.5 MiB blocks), and `superblock.zig` handles checkpoint metadata. The protocol uses flexible quorums — 3 replicas for durability, 4 for view change.",
+      "focusDirectory": "src/vsr",
+      "colorMode": "fileTypes",
+      "estimatedTime": 60,
+      "highlightLayers": [
+        {
+          "id": "vsr-core",
+          "name": "Core Consensus",
+          "color": "#3b82f6",
+          "items": [
+            { "path": "src/vsr/replica.zig", "type": "file" },
+            { "path": "src/vsr/journal.zig", "type": "file" },
+            { "path": "src/vsr/client.zig", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        },
+        {
+          "id": "vsr-storage",
+          "name": "Storage & Recovery",
+          "color": "#10b981",
+          "items": [
+            { "path": "src/vsr/grid.zig", "type": "file" },
+            { "path": "src/vsr/superblock.zig", "type": "file" },
+            { "path": "src/vsr/free_set.zig", "type": "file" }
+          ],
+          "opacity": 0.7,
+          "renderStrategy": "fill"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click replica.zig — the largest file in the repo and the core of consensus",
+          "target": "src/vsr/replica.zig"
+        }
+      ],
+      "resources": [
+        {
+          "title": "VSR Internals Documentation",
+          "url": "docs/internals/vsr.md",
+          "type": "documentation"
+        }
+      ]
+    },
+    {
+      "id": "storage-engine",
+      "title": "LSM — Storage Engine",
+      "description": "Data lives in a Log-Structured Merge Tree forest — multiple type-specialized trees optimized for different value sizes (128 bytes for transfers, 32 bytes for indices). `forest.zig` orchestrates the multi-tree structure, `tree.zig` implements individual trees, and `compaction.zig` runs deterministic background compaction to bound tail latency. `manifest.zig` tracks tree versions, while `scan_*.zig` files handle query iteration. All compaction is spread deterministically so no single operation pays the full cost.",
+      "focusDirectory": "src/lsm",
+      "colorMode": "fileTypes",
+      "estimatedTime": 60,
+      "highlightLayers": [
+        {
+          "id": "lsm-core",
+          "name": "Core LSM",
+          "color": "#8b5cf6",
+          "items": [
+            { "path": "src/lsm/forest.zig", "type": "file" },
+            { "path": "src/lsm/tree.zig", "type": "file" },
+            { "path": "src/lsm/compaction.zig", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        },
+        {
+          "id": "lsm-manifest",
+          "name": "Manifest & Metadata",
+          "color": "#ec4899",
+          "items": [
+            { "path": "src/lsm/manifest.zig", "type": "file" },
+            { "path": "src/lsm/manifest_log.zig", "type": "file" },
+            { "path": "src/lsm/manifest_level.zig", "type": "file" }
+          ],
+          "opacity": 0.7,
+          "renderStrategy": "fill"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click forest.zig to see how multiple LSM trees are orchestrated",
+          "target": "src/lsm/forest.zig"
+        }
+      ],
+      "resources": [
+        {
+          "title": "LSM Internals Documentation",
+          "url": "docs/internals/lsm.md",
+          "type": "documentation"
+        }
+      ]
+    },
+    {
+      "id": "state-machine",
+      "title": "State Machine — Accounting Logic",
+      "description": "The `state_machine/` directory and `state_machine.zig` implement TigerBeetle's double-entry bookkeeping engine. Operations include `create_accounts`, `create_transfers`, `lookup_accounts`, and `lookup_transfers`, with support for pending, posted, and voided transfer states. `workload.zig` generates deterministic test workloads, while `auditor.zig` validates that accounting invariants always hold. The state machine is physically deterministic — the same input produces byte-for-byte identical state across all replicas.",
+      "focusDirectory": "src/state_machine",
+      "colorMode": "fileTypes",
+      "estimatedTime": 45,
+      "highlightLayers": [
+        {
+          "id": "accounting",
+          "name": "Accounting Engine",
+          "color": "#f59e0b",
+          "items": [
+            { "path": "src/state_machine.zig", "type": "file" },
+            { "path": "src/state_machine", "type": "directory" }
+          ],
+          "opacity": 0.7,
+          "renderStrategy": "border"
+        },
+        {
+          "id": "accounting-tests",
+          "name": "Accounting Tests",
+          "color": "#ef4444",
+          "items": [
+            { "path": "src/state_machine_tests.zig", "type": "file" },
+            { "path": "src/state_machine_fuzz.zig", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "hover-directory",
+          "description": "Hover over the state_machine directory to see the workload and auditor modules",
+          "target": "src/state_machine"
+        }
+      ]
+    },
+    {
+      "id": "client-libraries",
+      "title": "Client Libraries — 7 Languages",
+      "description": "TigerBeetle provides client libraries for Go, Python, Rust, Java, .NET, Node.js, and C. All clients follow the same pattern: a Zig-compiled shared library (`libtb_client`) wrapped with language-specific bindings (FFI, JNI, cgo, ctypes, P/Invoke, etc.). This means every client gets the same battle-tested networking and batching code. The common API exposes `create_accounts`, `create_transfers`, and lookup operations with async batching.",
+      "focusDirectory": "src/clients",
+      "colorMode": "fileTypes",
+      "estimatedTime": 45,
+      "highlightLayers": [
+        {
+          "id": "client-langs",
+          "name": "Client Language Bindings",
+          "color": "#06b6d4",
+          "items": [
+            { "path": "src/clients/go", "type": "directory" },
+            { "path": "src/clients/python", "type": "directory" },
+            { "path": "src/clients/rust", "type": "directory" },
+            { "path": "src/clients/java", "type": "directory" },
+            { "path": "src/clients/dotnet", "type": "directory" },
+            { "path": "src/clients/node", "type": "directory" },
+            { "path": "src/clients/c", "type": "directory" }
+          ],
+          "opacity": 0.6,
+          "renderStrategy": "border"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "explore",
+          "description": "Explore the client directories — each follows the same shared-library wrapper pattern"
+        }
+      ]
+    },
+    {
+      "id": "io-layer",
+      "title": "I/O Layer — Platform Abstraction",
+      "description": "The `io/` directory abstracts platform-specific I/O. On Linux (production), TigerBeetle uses io_uring for high-throughput async I/O. macOS uses kqueue, Windows uses IOCP. `common.zig` provides shared abstractions, and `test.zig` is a mock backend for deterministic testing. This design allows the entire database to be tested in simulation without touching real I/O.",
+      "focusDirectory": "src/io",
+      "colorMode": "fileTypes",
+      "estimatedTime": 30,
+      "highlightLayers": [
+        {
+          "id": "io-platforms",
+          "name": "Platform Implementations",
+          "color": "#f97316",
+          "items": [
+            { "path": "src/io/linux.zig", "type": "file" },
+            { "path": "src/io/darwin.zig", "type": "file" },
+            { "path": "src/io/windows.zig", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        },
+        {
+          "id": "io-shared",
+          "name": "Shared & Test",
+          "color": "#a855f7",
+          "items": [
+            { "path": "src/io/common.zig", "type": "file" },
+            { "path": "src/io/test.zig", "type": "file" }
+          ],
+          "opacity": 0.7,
+          "renderStrategy": "fill"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click linux.zig to see the io_uring production I/O implementation",
+          "target": "src/io/linux.zig"
+        }
+      ]
+    },
+    {
+      "id": "testing-infrastructure",
+      "title": "Testing — Simulation & Fuzzing",
+      "description": "TigerBeetle's testing is extraordinary. The VOPR (Viewstamped Operation Replicator) in `vopr.zig` runs an entire cluster on a single thread with deterministic simulation — injecting storage faults, network partitions, and timing variations. The `testing/` directory provides `cluster.zig` for in-process cluster simulation, `packet_simulator.zig` for network fault injection, and `storage.zig` for simulated storage failures. There are 18 fuzz test modules throughout the codebase. The Vortex framework in `testing/vortex/` drives full end-to-end integration tests.",
+      "focusDirectory": "src/testing",
+      "colorMode": "fileTypes",
+      "estimatedTime": 45,
+      "highlightLayers": [
+        {
+          "id": "simulation",
+          "name": "Simulation Engine",
+          "color": "#ef4444",
+          "items": [
+            { "path": "src/testing/cluster.zig", "type": "file" },
+            { "path": "src/testing/packet_simulator.zig", "type": "file" },
+            { "path": "src/testing/storage.zig", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        },
+        {
+          "id": "vortex",
+          "name": "Vortex E2E Framework",
+          "color": "#22c55e",
+          "items": [
+            { "path": "src/testing/vortex", "type": "directory" }
+          ],
+          "opacity": 0.7,
+          "renderStrategy": "border"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click cluster.zig — the in-process cluster simulator used for deterministic testing",
+          "target": "src/testing/cluster.zig"
+        }
+      ],
+      "resources": [
+        {
+          "title": "VOPR Documentation",
+          "url": "docs/internals/vopr.md",
+          "type": "documentation"
+        },
+        {
+          "title": "Testing Internals",
+          "url": "docs/internals/testing.md",
+          "type": "documentation"
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "title": "Documentation & Philosophy",
+      "description": "The `docs/` directory contains user-facing guides, API reference, and deep-dive internals. `TIGER_STYLE.md` is the project's coding philosophy — emphasizing safety, performance, zero technical debt, and static allocation. The `internals/` subdirectory has detailed architecture documents for VSR, LSM, data formats, upgrades, and synchronization. `start.md` is the getting-started guide for new users.",
+      "focusDirectory": "docs",
+      "colorMode": "fileTypes",
+      "estimatedTime": 30,
+      "highlightLayers": [
+        {
+          "id": "docs-key",
+          "name": "Essential Reading",
+          "color": "#3b82f6",
+          "items": [
+            { "path": "docs/TIGER_STYLE.md", "type": "file" },
+            { "path": "docs/ARCHITECTURE.md", "type": "file" },
+            { "path": "docs/start.md", "type": "file" }
+          ],
+          "opacity": 0.8,
+          "renderStrategy": "fill"
+        },
+        {
+          "id": "docs-internals",
+          "name": "Internals Deep-Dives",
+          "color": "#8b5cf6",
+          "items": [
+            { "path": "docs/internals", "type": "directory" }
+          ],
+          "opacity": 0.6,
+          "renderStrategy": "border"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "click-file",
+          "description": "Click TIGER_STYLE.md — the project's coding philosophy and design principles",
+          "target": "docs/TIGER_STYLE.md"
+        }
+      ]
+    },
+    {
+      "id": "full-view",
+      "title": "The Complete Architecture",
+      "description": "You've now seen TigerBeetle's major subsystems: VSR consensus (blue), LSM storage (purple), the accounting state machine (amber), client libraries (cyan), platform I/O (orange), and the testing infrastructure (red). The architecture is built on key principles: determinism (same input = same physical state), static memory allocation (no malloc after startup), single-threaded execution for the state machine, aggressive batching (8,000 transfers per prepare), and mechanical sympathy (direct I/O, cache-line alignment, SIMD). This is a database engineered from the ground up for financial transaction safety and performance.",
+      "focusDirectory": "",
+      "colorMode": "fileTypes",
+      "estimatedTime": 30,
+      "highlightLayers": [
+        {
+          "id": "arch-consensus",
+          "name": "Consensus (VSR)",
+          "color": "#3b82f6",
+          "items": [
+            { "path": "src/vsr", "type": "directory" }
+          ],
+          "opacity": 0.5,
+          "renderStrategy": "border"
+        },
+        {
+          "id": "arch-storage",
+          "name": "Storage (LSM)",
+          "color": "#8b5cf6",
+          "items": [
+            { "path": "src/lsm", "type": "directory" }
+          ],
+          "opacity": 0.5,
+          "renderStrategy": "border"
+        },
+        {
+          "id": "arch-accounting",
+          "name": "Accounting",
+          "color": "#f59e0b",
+          "items": [
+            { "path": "src/state_machine", "type": "directory" },
+            { "path": "src/state_machine.zig", "type": "file" }
+          ],
+          "opacity": 0.5,
+          "renderStrategy": "border"
+        },
+        {
+          "id": "arch-clients",
+          "name": "Client Libraries",
+          "color": "#06b6d4",
+          "items": [
+            { "path": "src/clients", "type": "directory" }
+          ],
+          "opacity": 0.5,
+          "renderStrategy": "border"
+        },
+        {
+          "id": "arch-testing",
+          "name": "Testing & Simulation",
+          "color": "#ef4444",
+          "items": [
+            { "path": "src/testing", "type": "directory" }
+          ],
+          "opacity": 0.5,
+          "renderStrategy": "border"
+        }
+      ],
+      "interactiveActions": [
+        {
+          "type": "explore",
+          "description": "Freely explore the full codebase — hover over any directory or click any file to learn more"
+        }
+      ],
+      "resources": [
+        {
+          "title": "TigerBeetle Documentation",
+          "url": "docs/start.md",
+          "type": "documentation"
+        },
+        {
+          "title": "Tiger Style — Coding Philosophy",
+          "url": "docs/TIGER_STYLE.md",
+          "type": "documentation"
+        },
+        {
+          "title": "Developer Hacking Guide",
+          "url": "docs/internals/HACKING.md",
+          "type": "documentation"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "author": "File City Tours",
+    "createdAt": "2026-03-16",
+    "updatedAt": "2026-03-16",
+    "tags": ["onboarding", "architecture", "zig", "database", "distributed-systems", "financial"]
+  }
+}
