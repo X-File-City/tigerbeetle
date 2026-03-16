@@ -27,7 +27,7 @@
     {
       "id": "core-modules",
       "title": "Core Source Modules",
-      "description": "The `src/` directory contains everything: the database engine, consensus protocol, storage layer, client libraries, CLI, and tests. Key root-level files include `state_machine.zig` (the accounting engine — 207KB), `constants.zig` (runtime configuration), `vopr.zig` (deterministic simulation tester), and `tigerbeetle.zig` (the main entry point). Each major subsystem lives in its own subdirectory.",
+      "description": "The `src/` directory contains everything: the database engine, consensus protocol, storage layer, client libraries, CLI, and tests. Key root-level files include `state_machine.zig` (the accounting engine), `constants.zig` (runtime configuration), `vopr.zig` (deterministic simulation tester), and `tigerbeetle.zig` (the main entry point). Each major subsystem lives in its own subdirectory.",
       "focusDirectory": "src",
       "colorMode": "fileTypes",
       "estimatedTime": 45,
