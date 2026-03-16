@@ -12,7 +12,7 @@
     {
       "id": "overview",
       "title": "The Big Picture",
-      "description": "TigerBeetle is a financial transactions database designed for mission-critical safety and extreme performance. The entire codebase is written in Zig — chosen for static memory allocation, deterministic execution, and fine-grained hardware control. The top-level layout is simple: src/ holds all source code, docs/ has documentation, and build.zig drives the build system.",
+      "description": "TigerBeetle is a financial transactions database built for mission-critical safety and extreme performance. Written entirely in Zig, the layout is simple: src/ holds all source code, docs/ has documentation, and build.zig drives the build system.",
       "focusDirectory": "",
       "colorMode": "fileTypes",
       "estimatedTime": 30,
@@ -27,7 +27,7 @@
     {
       "id": "core-modules",
       "title": "Core Source Modules",
-      "description": "The src/ directory contains everything: the database engine, consensus protocol, storage layer, client libraries, CLI, and tests. Key root-level files include state_machine.zig (the accounting engine), constants.zig (runtime configuration), vopr.zig (deterministic simulation tester), and tigerbeetle.zig (the main entry point). Each major subsystem lives in its own subdirectory.",
+      "description": "The src/ directory contains everything. Key files at the root include state_machine.zig (accounting engine), constants.zig (configuration), vopr.zig (simulation tester), and tigerbeetle.zig (entry point). Each major subsystem lives in its own subdirectory.",
       "focusDirectory": "src",
       "colorMode": "fileTypes",
       "estimatedTime": 45,
@@ -57,7 +57,7 @@
     {
       "id": "consensus-protocol",
       "title": "VSR — Consensus Protocol",
-      "description": "TigerBeetle uses Viewstamped Replication (VSR) for distributed consensus across a 6-replica cluster. The vsr/ directory implements the full protocol: replica.zig is the core replica state machine handling replication, quorum consensus, and failover. journal.zig manages the write-ahead log, grid.zig provides the block storage abstraction (0.5 MiB blocks), and superblock.zig handles checkpoint metadata. The protocol uses flexible quorums — 3 replicas for durability, 4 for view change.",
+      "description": "TigerBeetle uses Viewstamped Replication (VSR) for distributed consensus across a 6-replica cluster. replica.zig is the core state machine, journal.zig manages the write-ahead log, and grid.zig provides block storage. The protocol uses flexible quorums — 3 replicas for durability, 4 for view change.",
       "focusDirectory": "src/vsr",
       "colorMode": "fileTypes",
       "estimatedTime": 60,
@@ -105,7 +105,7 @@
     {
       "id": "storage-engine",
       "title": "LSM — Storage Engine",
-      "description": "Data lives in a Log-Structured Merge Tree forest — multiple type-specialized trees optimized for different value sizes (128 bytes for transfers, 32 bytes for indices). forest.zig orchestrates the multi-tree structure, tree.zig implements individual trees, and compaction.zig runs deterministic background compaction to bound tail latency. manifest.zig tracks tree versions, while scan_*.zig files handle query iteration. All compaction is spread deterministically so no single operation pays the full cost.",
+      "description": "Data is stored in a Log-Structured Merge Tree forest — multiple specialized trees for different value types. forest.zig orchestrates the trees, tree.zig implements each one, and compaction.zig runs deterministic background compaction to bound tail latency.",
       "focusDirectory": "src/lsm",
       "colorMode": "fileTypes",
       "estimatedTime": 60,
@@ -153,7 +153,7 @@
     {
       "id": "state-machine",
       "title": "State Machine — Accounting Logic",
-      "description": "The state_machine/ directory and state_machine.zig implement TigerBeetle's double-entry bookkeeping engine. Operations include create_accounts, create_transfers, lookup_accounts, and lookup_transfers, with support for pending, posted, and voided transfer states. workload.zig generates deterministic test workloads, while auditor.zig validates that accounting invariants always hold. The state machine is physically deterministic — the same input produces byte-for-byte identical state across all replicas.",
+      "description": "TigerBeetle's double-entry bookkeeping engine. Supports creating accounts and transfers with pending, posted, and voided states. The state machine is physically deterministic — the same input produces byte-for-byte identical state across all replicas.",
       "focusDirectory": "src/state_machine",
       "colorMode": "fileTypes",
       "estimatedTime": 45,
@@ -192,7 +192,7 @@
     {
       "id": "client-libraries",
       "title": "Client Libraries — 7 Languages",
-      "description": "TigerBeetle provides client libraries for Go, Python, Rust, Java, .NET, Node.js, and C. All clients follow the same pattern: a Zig-compiled shared library (libtb_client) wrapped with language-specific bindings (FFI, JNI, cgo, ctypes, P/Invoke, etc.). This means every client gets the same battle-tested networking and batching code. The common API exposes create_accounts, create_transfers, and lookup operations with async batching.",
+      "description": "Client libraries for Go, Python, Rust, Java, .NET, Node.js, and C. All wrap the same Zig-compiled shared library (libtb_client) with language-specific bindings, so every client gets identical networking and batching behavior.",
       "focusDirectory": "src/clients",
       "colorMode": "fileTypes",
       "estimatedTime": 45,
@@ -224,7 +224,7 @@
     {
       "id": "io-layer",
       "title": "I/O Layer — Platform Abstraction",
-      "description": "The io/ directory abstracts platform-specific I/O. On Linux (production), TigerBeetle uses io_uring for high-throughput async I/O. macOS uses kqueue, Windows uses IOCP. common.zig provides shared abstractions, and test.zig is a mock backend for deterministic testing. This design allows the entire database to be tested in simulation without touching real I/O.",
+      "description": "Platform-specific I/O abstraction. Linux uses io_uring, macOS uses kqueue, Windows uses IOCP. test.zig provides a mock backend so the entire database can be tested in simulation without real I/O.",
       "focusDirectory": "src/io",
       "colorMode": "fileTypes",
       "estimatedTime": 30,
@@ -264,7 +264,7 @@
     {
       "id": "testing-infrastructure",
       "title": "Testing — Simulation & Fuzzing",
-      "description": "TigerBeetle's testing is extraordinary. The VOPR (Viewstamped Operation Replicator) in vopr.zig runs an entire cluster on a single thread with deterministic simulation — injecting storage faults, network partitions, and timing variations. The testing/ directory provides cluster.zig for in-process cluster simulation, packet_simulator.zig for network fault injection, and storage.zig for simulated storage failures. There are 18 fuzz test modules throughout the codebase. The Vortex framework in testing/vortex/ drives full end-to-end integration tests.",
+      "description": "The VOPR simulator runs an entire cluster on a single thread, injecting storage faults, network partitions, and timing variations. cluster.zig provides in-process simulation, and the Vortex framework drives end-to-end integration tests. 18 fuzz test modules are spread throughout the codebase.",
       "focusDirectory": "src/testing",
       "colorMode": "fileTypes",
       "estimatedTime": 45,
@@ -315,7 +315,7 @@
     {
       "id": "documentation",
       "title": "Documentation & Philosophy",
-      "description": "The docs/ directory contains user-facing guides, API reference, and deep-dive internals. TIGER_STYLE.md is the project's coding philosophy — emphasizing safety, performance, zero technical debt, and static allocation. The internals/ subdirectory has detailed architecture documents for VSR, LSM, data formats, upgrades, and synchronization. start.md is the getting-started guide for new users.",
+      "description": "User-facing guides, API reference, and architecture deep-dives. TIGER_STYLE.md defines the project's coding philosophy. The internals/ subdirectory covers VSR, LSM, data formats, and more.",
       "focusDirectory": "docs",
       "colorMode": "fileTypes",
       "estimatedTime": 30,
@@ -354,7 +354,7 @@
     {
       "id": "full-view",
       "title": "The Complete Architecture",
-      "description": "You've now seen TigerBeetle's major subsystems: VSR consensus, LSM storage, the accounting state machine, client libraries, platform I/O, and the testing infrastructure. The architecture is built on key principles: determinism (same input = same physical state), static memory allocation (no malloc after startup), single-threaded execution for the state machine, aggressive batching (8,000 transfers per prepare), and mechanical sympathy (direct I/O, cache-line alignment, SIMD). This is a database engineered from the ground up for financial transaction safety and performance.",
+      "description": "TigerBeetle's major subsystems at a glance: VSR consensus, LSM storage, the accounting state machine, client libraries, platform I/O, and testing. Built on determinism, static allocation, single-threaded execution, aggressive batching, and mechanical sympathy.",
       "focusDirectory": "",
       "colorMode": "fileTypes",
       "estimatedTime": 30,
