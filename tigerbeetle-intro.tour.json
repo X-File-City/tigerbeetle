@@ -27,7 +27,7 @@
     {
       "id": "core-modules",
       "title": "Core Source Modules",
-      "description": "The src/ directory contains everything. Key files at the root include state_machine.zig (accounting engine), constants.zig (configuration), vopr.zig (simulation tester), and tigerbeetle.zig (entry point). Each major subsystem lives in its own subdirectory.",
+      "description": "The src directory contains everything. The highlighted files are the most important starting points: the accounting engine, runtime configuration, the deterministic simulation tester, and the main entry point. Each major subsystem lives in its own subdirectory.",
       "focusDirectory": "src",
       "colorMode": "fileTypes",
       "estimatedTime": 45,
